@@ -1,0 +1,8 @@
+# 로컬/Colab/학교서버처럼 huggingface.co 접속이 가능한 환경에서만 설치.
+# BERT + ResNet + CLIP 기반 --mode full 파이프라인에 필요.
+-r requirements.txt
+transformers
+torchvision
+Pillow
+gdown
+requests   # 실험 D: 조인 후 리뷰 이미지 다운로드용
