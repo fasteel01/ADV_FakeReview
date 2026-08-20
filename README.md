@@ -32,7 +32,8 @@ Text + Image + Reviewer Behavior 멀티모달 가짜 리뷰 탐지 리서치 (20
 - **Self-MM 아이디어**: 각 modality branch에 자체 auxiliary classification head를 달아서, fusion 이전에도 각 branch가 유의미한 정보를 담도록 학습을 유도 (`SelfMMAuxHead`)
 - **MISA 아이디어(경량화)**: 모든 branch가 공유하는 linear layer(shared, modality-invariant)와 branch별 linear layer(specific)로 나눠서 fusion. 원 논문의 CMD loss 대신 orthogonality loss(내적 최소화)로 shared/specific을 분리 (`MISALiteFusion`)
 - **MMIM 아이디어**: mutual information estimator를 직접 구현하는 대신, CLIP text-image cosine similarity를 명시적 feature로 사용 (`src/models/multimodal_model.py`의 `extract_features()`)
-- **MAG, MPLMM**: 구현하지 않음. 이유는 `reports/architecture_rationale.md` 4절 참고 (MAG는 BERT 내부 hook이 필요해 리스크 대비 이득이 불확실, MPLMM은 이번 실험에 missing modality 상황 자체가 없어 적용 대상이 없음)
+- **MAG**: 구현하지 않음. BERT 내부 hook이 필요해 리스크 대비 이득이 불확실 (`reports/architecture_rationale.md` 4절 참고)
+- **MPLMM-lite**: 실험 B에 추가로 적용. YelpChi의 "신규 유저(그래프 정보 없음)"를 결측 modality 상황으로 보고, naive(0 채움) → static prompt(GNN 입력단, 개선 미미) → **conditional prompt(feat_repr 기반 노드별 생성, 뚜렷한 개선)** 순서로 3단계에 걸쳐 발전시킴. 왜 각 단계가 개선/미개선됐는지까지 구조적으로 설명 가능. 전체 정리는 `reports/experiment_b_missing_modality_v3_findings.md` 참고
 
 실험 B(`src/behavior_gnn_fusion.py`)에서 이 메커니즘을 "text-feature branch vs graph branch"라는 두 pseudo-modality에 먼저 프로토타이핑했고, 실험 A(`src/baseline_textimage.py --mode full`)에서 진짜 text/image 두 modality에 동일한 메커니즘을 적용한다.
 
@@ -111,7 +112,11 @@ ADV_FakeReview/
 │   ├── behavior_gnn.py             # 실험 B (Day1 baseline)
 │   ├── behavior_gnn_fusion.py      # 실험 B 확장 (Self-MM + MISA-lite ablation)
 │   ├── baseline_opspam.py          # 실험 C (난이도 대조군, Ott)
-│   ├── build_amazon_hard_dataset.py # 실험 D (진행 중, 조인 데이터셋 구축)
+│   ├── build_amazon_hard_dataset.py # 실험 D (종료됨, 조사 기록용)
+│   ├── behavior_gnn_fusion_sweep.py # 실험 B aux_weight/ortho_weight robustness check
+│   ├── behavior_gnn_missing_modality.py # 실험 B + MPLMM v1 (분류기 직전 대체, 개선 없음)
+│   ├── behavior_gnn_missing_modality_v2.py # v2 (GNN 입력단 static prompt, 미미한 개선)
+│   ├── behavior_gnn_missing_modality_v3.py # v3 (feat_repr 기반 conditional prompt, 뚜렷한 개선)
 │   └── models/
 │       ├── simple_gnn.py           # PyG 없이 순수 PyTorch로 구현한 경량 GNN
 │       ├── fusion_modules.py       # Self-MM / MISA-lite 공용 모듈
@@ -120,6 +125,9 @@ ADV_FakeReview/
     ├── architecture_rationale.md   # 전체 구조 설계 근거 (논문별 채택/제외 이유)
     ├── day1_findings.md            # Day1 실행 결과
     ├── experiment_c_findings.md    # 실험 C 결과 및 해석
-    ├── experiment_d_plan.md        # 실험 D 계획/리스크 (진행 중)
+    ├── experiment_d_plan.md        # 실험 D 조사 기록 (종료 - 실현 불가 확인)
+    ├── experiment_b_hparam_sweep.md # 실험 B aux_weight/ortho_weight robustness check
+    ├── experiment_b_missing_modality.md # v1 상세 결과 (분류기 직전 대체)
+    ├── experiment_b_missing_modality_v3_findings.md # v1→v2→v3 종합 정리 (결측 modality 처리)
     └── 실험결과_쉽게정리.md          # 쉬운 말로 정리한 결과 요약
 ```
