@@ -11,9 +11,9 @@ Text + Image + Reviewer Behavior 멀티모달 가짜 리뷰 탐지 리서치 (20
 - **실험 A (Text + Image)**: [AiGen-FoodReview](https://github.com/iamalegambetti/aigen-foodreview) 데이터셋 위에서 텍스트/이미지 특성이 fake review 탐지에 기여하는지 검증
 - **실험 B (Text + Reviewer Behavior)**: [YelpChi](https://github.com/YingtongDou/CARE-GNN) 데이터셋 위에서 reviewer-review-product 그래프 구조가 기여하는지 검증
 - **실험 C (난이도 대조군)**: [Ott et al. Deceptive Opinion Spam Corpus](https://github.com/PauDK/Deceptive-Review-Detection) 위에서 같은 text 파이프라인을 돌려서, AiGen-FoodReview(LLM이 대필한 "쉬운" 가짜)와 사람이 직접 쓴 "어려운" 가짜 리뷰 사이의 난이도 차이를 정량적으로 비교
-- **실험 D (진행 중)**: "사람이 쓴 어려운 가짜 + 실제 이미지"가 둘 다 있는 공개 데이터셋이 없어서, [Hollenbeck et al. 가짜/진짜 라벨 데이터](https://github.com/bretthollenbeck/fake-reviews-data)와 [Amazon Reviews 2023 실제 리뷰 이미지](https://amazon-reviews-2023.github.io/)를 직접 조인해서 만들어보는 실험. 스키마/조인 성공률이 아직 미확정이라 탐색 단계. 자세한 내용은 `reports/experiment_d_plan.md` 참고.
+- **실험 D (종료 - 실현 불가 확인)**: "사람이 쓴 어려운 가짜 + 실제 이미지"가 둘 다 있는 공개 데이터셋이 없어서, [Hollenbeck et al. 가짜/진짜 라벨 데이터](https://github.com/bretthollenbeck/fake-reviews-data)와 [Amazon Reviews 2023 실제 리뷰 이미지](https://amazon-reviews-2023.github.io/)를 직접 조인해서 만들어보려 시도했으나, 실제 스키마를 확인해보니 Hollenbeck 데이터가 리뷰 단위가 아닌 "상품×주" 집계 패널 데이터라 조인에 필요한 ASIN 컬럼 자체가 없어 실현 불가능함을 확인했다. 자세한 내용(조사 과정, 근거)은 `reports/experiment_d_plan.md` 참고.
 
-세 데이터셋을 합치면 쉬움(AiGen-FoodReview, LLM 생성) → 보통(YelpChi, Yelp 자체 필터 라벨) → 어려움(Ott, 사람이 작정하고 쓴 기만 리뷰)으로 이어지는 난이도 스펙트럼이 만들어진다. 자세한 내용은 `reports/experiment_c_findings.md` 참고. 실험 D가 성공하면 여기에 "어려움 + 이미지 포함"이 추가된다.
+세 데이터셋을 합치면 쉬움(AiGen-FoodReview, LLM 생성) → 보통(YelpChi, Yelp 자체 필터 라벨) → 어려움(Ott, 사람이 작정하고 쓴 기만 리뷰)으로 이어지는 난이도 스펙트럼이 만들어진다. 자세한 내용은 `reports/experiment_c_findings.md` 참고.
 
 ## ⚠️ 중요: 실행 환경별 제약
 
@@ -89,9 +89,9 @@ python src/behavior_gnn_fusion.py
 bash scripts/download_opspam.sh
 python src/baseline_opspam.py
 
-# 실험 D (진행 중, 학교서버/Colab에서만 - mcauleylab.ucsd.edu/dropbox.com 샌드박스에서 막힘)
-bash scripts/download_amazon_hard.sh
-python src/build_amazon_hard_dataset.py --explore   # 스키마/조인 가능성부터 확인
+# 실험 D (종료됨 - 조인 불가로 확인, 조사 기록용으로만 남김. reports/experiment_d_plan.md 참고)
+# bash scripts/download_amazon_hard.sh
+# python src/build_amazon_hard_dataset.py --explore
 ```
 
 결과와 해석은 `reports/day1_findings.md`, `reports/experiment_b_fusion_results.csv` 참고.
