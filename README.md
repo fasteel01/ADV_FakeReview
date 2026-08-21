@@ -133,5 +133,7 @@ ADV_FakeReview/
     ├── experiment_b_missing_modality_v3_findings.md # v1→v2→v3 종합 정리 (결측 modality 처리)
     ├── experiment_b_missing_modality_v4_findings.md # v4: 현실적 결측 + seed 3개 검증
     ├── experiment_b_missing_modality_v5_capacity_findings.md # v5: 용량 비교 + v1~v5 종합 (최종)
-    └── 실험결과_쉽게정리.md          # 쉬운 말로 정리한 결과 요약
+    ├── 실험결과_쉽게정리.md          # (구버전) Day1 결과만 담은 초기 요약 - 아래 종합정리로 대체됨
+    ├── 전체_실험결과_종합정리.md      # 전체(A/B/C/D + 결측 modality) 쉬운 말 종합 요약 (최신)
+    └── 향후_실험_아이디어.md          # 앞으로 더 해볼 만한 실험 아이디어 정리
 ```
