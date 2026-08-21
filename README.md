@@ -33,7 +33,7 @@ Text + Image + Reviewer Behavior 멀티모달 가짜 리뷰 탐지 리서치 (20
 - **MISA 아이디어(경량화)**: 모든 branch가 공유하는 linear layer(shared, modality-invariant)와 branch별 linear layer(specific)로 나눠서 fusion. 원 논문의 CMD loss 대신 orthogonality loss(내적 최소화)로 shared/specific을 분리 (`MISALiteFusion`)
 - **MMIM 아이디어**: mutual information estimator를 직접 구현하는 대신, CLIP text-image cosine similarity를 명시적 feature로 사용 (`src/models/multimodal_model.py`의 `extract_features()`)
 - **MAG**: 구현하지 않음. BERT 내부 hook이 필요해 리스크 대비 이득이 불확실 (`reports/architecture_rationale.md` 4절 참고)
-- **MPLMM-lite**: 실험 B에 추가로 적용. YelpChi의 "신규 유저(그래프 정보 없음)"를 결측 modality 상황으로 보고, naive(0 채움) → static prompt(GNN 입력단, 개선 미미) → **conditional prompt(feat_repr 기반 노드별 생성, 뚜렷한 개선)** 순서로 3단계에 걸쳐 발전시킴. 왜 각 단계가 개선/미개선됐는지까지 구조적으로 설명 가능. 전체 정리는 `reports/experiment_b_missing_modality_v3_findings.md` 참고
+- **MPLMM-lite**: 실험 B에 추가로 적용. YelpChi의 "신규 유저(그래프 정보 없음)"를 결측 modality 상황으로 보고, naive(0 채움) → static prompt(GNN 입력단, 개선 미미) → conditional prompt(feat_repr 기반 노드별 생성, 뚜렷한 개선) 순서로 발전시킴(v1~v3, `experiment_b_missing_modality_v3_findings.md`). 이후 (a) R-U-R 엣지도 실제로 제거하는 현실적 결측 시뮬레이션, (b) seed 3개 반복 검증까지 추가(v4, `experiment_b_missing_modality_v4_findings.md`) — conditional prompt가 평균적으로/분산 면에서는 우세하지만 seed 3개 중 1개에서 역전되고 AUC에서는 차이가 안 보인다는 것까지 투명하게 확인함
 
 실험 B(`src/behavior_gnn_fusion.py`)에서 이 메커니즘을 "text-feature branch vs graph branch"라는 두 pseudo-modality에 먼저 프로토타이핑했고, 실험 A(`src/baseline_textimage.py --mode full`)에서 진짜 text/image 두 modality에 동일한 메커니즘을 적용한다.
 
@@ -117,6 +117,8 @@ ADV_FakeReview/
 │   ├── behavior_gnn_missing_modality.py # 실험 B + MPLMM v1 (분류기 직전 대체, 개선 없음)
 │   ├── behavior_gnn_missing_modality_v2.py # v2 (GNN 입력단 static prompt, 미미한 개선)
 │   ├── behavior_gnn_missing_modality_v3.py # v3 (feat_repr 기반 conditional prompt, 뚜렷한 개선)
+│   ├── behavior_gnn_missing_modality_v4.py # v4 (R-U-R만 제거하는 현실적 결측 + seed 3개 검증)
+│   ├── behavior_gnn_missing_modality_v5_capacity.py # v5 (conditional prompt 용량 비교)
 │   └── models/
 │       ├── simple_gnn.py           # PyG 없이 순수 PyTorch로 구현한 경량 GNN
 │       ├── fusion_modules.py       # Self-MM / MISA-lite 공용 모듈
@@ -129,5 +131,7 @@ ADV_FakeReview/
     ├── experiment_b_hparam_sweep.md # 실험 B aux_weight/ortho_weight robustness check
     ├── experiment_b_missing_modality.md # v1 상세 결과 (분류기 직전 대체)
     ├── experiment_b_missing_modality_v3_findings.md # v1→v2→v3 종합 정리 (결측 modality 처리)
+    ├── experiment_b_missing_modality_v4_findings.md # v4: 현실적 결측 + seed 3개 검증
+    ├── experiment_b_missing_modality_v5_capacity_findings.md # v5: 용량 비교 + v1~v5 종합 (최종)
     └── 실험결과_쉽게정리.md          # 쉬운 말로 정리한 결과 요약
 ```
